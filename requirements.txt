@@ -3,3 +3,4 @@ wordcloud==1.8.2.2
 python-bidi==0.4.2
 arabic_reshaper==2.1.4
 demoji==1.1.0
+loguru==0.6.0

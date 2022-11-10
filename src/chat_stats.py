@@ -5,6 +5,7 @@ from typing import Union
 import arabic_reshaper
 import demoji
 from hazm import Normalizer, word_tokenize
+from loguru import logger
 from wordcloud import WordCloud
 
 from data import DATA_DIR
@@ -12,41 +13,46 @@ from data import DATA_DIR
 
 class tlg_ChatStats:
     """Generate chat statistics and wordcloud from a telegram chat json file"""
-    def __init__(self, chat_json: Union[Path, str], stop_words: Union[Path, str]): 
+
+    def __init__(self, chat_json: Union[Path, str], stop_words: Union[Path, str]):
         """
         Arguments:
             chat_json {Union[Path, str]} -- path to the chat json file
             stop_words {Union[Path, str]} -- path to the stop words file
         """
-        
+
         # load data
+        logger.info(f'Loading data from {chat_json} and {stop_words} ...')
         with open(chat_json, encoding='UTF8') as f:
             self.chat_data = json.load(f)
-            
-        # load stopwords   
+
+        # load stopwords
         with open(stop_words) as swf:
             self.stopwords = swf.read().split()
-        
+
         # extract chat texts
+        logger.info('Extracting chat texts ...')
         self.text_content = ""
         for msg in self.chat_data['messages']:
-            # some chats are only contain text and without links 
+            # some chats are only contain text and without links
             if isinstance(msg['text'], str):
                 self.text_content += msg['text']
-            
-            # some chats are contains links > data type: list  
+
+            # some chats are contains links > data type: list
             if isinstance(msg['text'], list):
                 # look up, where is messages in list
                 for i in range(len(msg['text'])):
                     if isinstance(msg['text'][i], str):
                         self.text_content += msg['text'][i]
-                        
+
         # pre-processing : normalize, tokenize, remove emojies ...
+        logger.info('tokenzing, normalizing, removing emojies ...')
         normalizer = Normalizer()
         normal_text = normalizer.normalize(self.text_content)
         text_tokens = word_tokenize(normal_text)
         # remove stop words
-        clean_tokens = [token for token in text_tokens if token not in self.stopwords]
+        clean_tokens = [
+            token for token in text_tokens if token not in self.stopwords]
         # remove emojies, half space and unicodes from
         full_text = ' '.join(clean_tokens)
         full_text = demoji.replace(full_text, ' ')
@@ -56,12 +62,12 @@ class tlg_ChatStats:
         full_text = full_text.replace('\U0001f979', ' ')
         full_text = full_text.replace('\U0001fae0', ' ')
         self.text_content = full_text.replace('\U0001fae1', ' ')
-    
-    def generate_wordcloud(self, 
-            font_path:Union[Path, str], outputdir: Union[Path, str], 
-            width=1200, height=1200, 
-            background_color='white'
-        ) -> None:
+
+    def generate_wordcloud(self,
+                           font_path: Union[Path, str], outputdir: Union[Path, str],
+                           width=1200, height=1200,
+                           background_color='white'
+                           ) -> None:
         """
         generate wordcloud from chat data
 
@@ -74,28 +80,30 @@ class tlg_ChatStats:
             height {int} -- height of wordcloud picture (default: {1200})
             background_color {str} -- background color of wordcloud picture (default: {'white'})
         """
-        
+
         # Make text readable for a non-Arabic library like wordcloud
         self.text_content = arabic_reshaper.reshape(self.text_content)
-        
+
         # Generate a word cloud image
+        logger.info('Generating wordcloud ...')
         wordcloud = WordCloud(
-            width=width, height=height, 
-            font_path=str(font_path), 
+            width=width, height=height,
+            font_path=str(font_path),
             background_color=background_color
         ).generate(self.text_content)
-        
+
         # save the picture
+        logger.info(f'Saving wordcloud to {outputdir} ...')
         wordcloud.to_file(str(Path(outputdir) / 'wordcloud.png'))
-        
+
 
 if __name__ == '__main__':
     chat_stats = tlg_ChatStats(
         chat_json=DATA_DIR / 'pytopia.json',
-        stop_words=DATA_DIR / 'stopwords.txt' 
+        stop_words=DATA_DIR / 'stopwords.txt'
     )
     chat_stats.generate_wordcloud(
-        outputdir=DATA_DIR,
+        outputdir='./src',
         font_path=DATA_DIR / 'BHoma.ttf'
     )
-    print('Done')
+    logger.info('Done!')
