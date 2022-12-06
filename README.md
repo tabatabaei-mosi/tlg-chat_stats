@@ -16,10 +16,9 @@ Next, you have to download a persian font, `BHoma.ttf`, and put it in `src.data`
 python src/chat_stats.py
 ```
 ## Issue solving
-You may face an issure during installing `requirements` packages related to `command 'gcc' failed`. To solve this problem:
+
+You may face an issure during installing `hazm` package related to `command 'gcc' failed`. To solve this problem:
 
 ```bash 
 sudo apt-get install gcc
 ```
-
-for more information, see this [repository](https://github.com/watson-developer-cloud/python-sdk/issues/418).
