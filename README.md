@@ -1,7 +1,12 @@
-# Telegram Chat Stata
+# Telegram Chat Statastics
 
-The project conducts a simple analysis on a telegram chat json file. There are two main scripts in the project with the following scope:
-`chat_stats.py` process over the json file to generate a word cloud from. By runing the `top_users.py` script, you get the statistics of the users on a json file and a bar chart which shows top `n` users. 
+The project conducts a simple analysis on a telegram chat json file. By processing the chat file it generates a `json` file containing the information and statistics of the users. The statistics include the number of:
+- Messages a user sent
+- Questions a user asked
+- Answers a user gave to other users
+- Replies of a user
+
+A word cloud is also generated for chat messages.
 
 > **Note**: The statistics of the users will be saved in a `json` file in `src.data` directory.
 
@@ -13,14 +18,10 @@ After cloning the repo, you need to install the requirements:
 pip install -r requirements.txt
 ```
 
-Next, you have to download a persian font, `BHoma.ttf`, and put it in `src.data` directory. Then you need to get a telegram chat `json` file. It's recommended to put it in the `src.data` directory. After that, you can run the script:
+Next, you have to [download](https://www.wfonts.com/font/b-homa) a persian font, `BHoma.ttf`, and put it in `src.data` directory. Then you need to get a telegram chat `json` file. It's recommended to put it in the `src.data` directory. After that, you can run the script:
 
 ```bash
-python src/chat_stats.py
-```
-
-```bash
-python src/top_users.py
+python src/tlg_stats.py
 ```
 
 ## Issue solving
